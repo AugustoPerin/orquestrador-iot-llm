@@ -1,78 +1,10 @@
-# Orquestração de dispositivos IoT usando LLMs
+# Orquestrador IoT LLM - Simulador de Estufa
+Título do Artigo: Orquestração de dispositivos IoT em cenários complexos com interação humana baseada em LLMs
 
-Sistema automatizado para avaliação de eficiência da Orquestração de dispositivos IoT em um cenário complexo de agricultura inteligente usando LLMs.
+Resumo do Artigo:
+O uso de LLMs na orquestração de dispositivos IoT oferece uma alta flexibilidade semântica para a interpretação de comandos, mas sua natureza probabilística impõe desafios à segurança operacional. A possibilidade de alucinações em sistemas de atuação física exige estratégias de mitigação que vão além da capacidade nativa do modelo. Para mitigar esses riscos, propõe-se uma arquitetura híbrida que combina a capacidade generativa das LLMs com uma camada de validação determinística focada em restrições de segurança física. A metodologia avaliou 1.250 cenários únicos de agricultura inteligente, sendo 12.500 execuções no total, atingindo 74,34% de sucesso global. Os resultados indicam que a segurança não é intrínseca ao modelo, mas dependente da engenharia de prompt: instruções técnicas reduziram a taxa de violação de 41,88% para 1,80%. Adicionalmente, métricas de eficiência evidenciaram a compensação entre corretude e custo operacional. E por fim, que o formato XML supera o JSON na injeção de contexto para uma orquestração segura.
 
-## Descrição do Experimento
-
-### Cenário
-- **30 Estufas** numeradas de GH001 a GH030
-- **6 Tipos de Plantio** (A, B, C, D, E, F) - 5 estufas de cada
-- **5 Sensores** por estufa: Temperatura, Umidade do Solo, pH do Solo, Luminosidade, Ventilação
-- **5 Atuadores** por estufa: Controlador de Temperatura, Irrigação, Controlador de pH, Iluminação, Ventilação
-
-### Parâmetros do Experimento
-| Parâmetro | Quantidade |
-|-----------|------------|
-| System Messages | 5 |
-| Prompts | 10 (3 simples + 3 complexos + 4 alucinação) |
-| Modelos LLM | 5 |
-| Formatos I/O | 5 (MarkDown, XML, YAML, JSON, TOON) |
-| Runs por combinação | 10 |
-| **TOTAL** | **12.500 experimentos** |
-
-### Modelos LLM (AWS Bedrock)
-1. Google - Gemma 3 (12B)
-2. OpenAI - gpt-oss (20B)
-3. Qwen - Qwen3 (32B)
-4. Meta - Llama 4 Maverick (17B)
-5. Mistral AI - Ministral 3 (14B)
-
-### Métricas Avaliadas
-1. **PEP** - Pontuação de Eficiência de Parâmetros
-2. **PVO** - Pontuação de Viabilidade Operacional
-2. **Corretude** - % de tarefas cumpridas corretamente
-3. **Sucesso** - % de tarefas cumpridas de qualquer forma
-4. **Latência Fim-a-Fim** - Tempo total da operação (ms)
-5. **Latência de Inferência** - Tempo de inferência do LLM (ms)
-6. **Consumo de Tokens** - Tokens de entrada e saída
-7. **Taxa de Violação de Restrições** - % de violações das regras
-8. **Taxa de Erro de Sintaxe** - % de respostas com formato inválido
-
-## Instalação
-
-```bash
-cd greenhouse_llm_research
-pip install -r requirements.txt
-```
-
-## Uso
-
-### Mostrar Configuração
-```bash
-python main.py config
-```
-
-### Executar Avaliação
-```bash
-export AWS_ACCESS_KEY_ID="sua_chave_aws"
-export AWS_SECRET_ACCESS_KEY="sua_secret_aws"
-
-python main.py run
-```
-
-### Analisar Resultados
-```bash
-# Ver relatório no terminal
-python main.py analyze results/greenhouse_benchmark_results_*.json
-
-# Gerar relatório em arquivo
-python main.py analyze results/arquivo.json --report relatorio.txt
-
-# Gerar tabelas LaTeX
-python main.py analyze results/arquivo.json --latex tabelas.tex
-```
-
-## Estrutura do Projeto
+# Estrutura do Repositório
 
 ```
 orquestrador-iot-llm/
@@ -89,25 +21,109 @@ orquestrador-iot-llm/
 ├── results_analyzer.py          # Análise de resultados
 ├── main.py                      # Ponto de entrada CLI
 ├── requirements.txt             # Dependências
-└── results/                     # Diretório de resultados
+├── test_models_connection.py    # Teste de conexão
+└── README.md                    # Documentação do projeto
 ```
 
-## Intervalos de Conforto por Tipo de Plantio
+# Selos Considerados
 
-| Tipo | Temperatura (°C) | Umidade Solo (%) | pH do Solo | Luminosidade (Lux) | Ventilação (m/s) |
-|------|------------------|------------------|------------|-------------------|------------------|
-| A | 25 - 28 | 60 - 70 | 5.5 - 6.5 | 15000 - 30000 | 0.2 - 0.3 |
-| B | 28 - 30 | 50 - 70 | 5.0 - 5.5 | 10000 - 15000 | 0.3 - 0.4 |
-| C | 23 - 25 | 55 - 65 | 5.5 - 7.5 | 15000 - 25000 | 0.4 - 0.5 |
-| D | 20 - 22 | 55 - 70 | 5.5 - 7.0 | 10000 - 20000 | 0.3 - 0.5 |
-| E | 23 - 28 | 60 - 65 | 5.0 - 6.0 | 15000 - 20000 | 0.2 - 0.4 |
-| F | 20 - 25 | 55 - 70 | 5.0 - 7.5 | 10000 - 30000 | 0.4 - 0.6 |
+Os selos considerados são: Artefatos Disponíveis (SeloD), Funcionais (SeloF), Sustentáveis (SeloS) e Experimentos Reprodutíveis (SeloR).
 
-## Objetivo do Experimento
+# Informações básicas
 
-Validar se LLMs são bons agentes orquestradores de dispositivos IoT em cenários complexos com interação humana, medindo:
-- Capacidade de interpretar comandos em linguagem natural
-- Precisão nas ações geradas
-- Respeito às restrições do sistema
-- Detecção de comandos impossíveis (alucinações)
-- Eficiência em relação ao tamanho do modelo
+O projeto configura um cenário de agricultura inteligente usando 30 estufas (GH001 a GH030) e 6 tipos de plantio, avaliando a orquestração IoT com diferentes modelos LLM via AWS Bedrock (Gemma 3, OpenAI, Qwen3, Llama 4, Ministral 3) e coletando latência, assertividade de endpoints e estruturação base para o throughput de 12.500 experimentos.
+
+- **Requisitos de Sistema**: CPU 2 cores 3.00 GHz, 8 Gb de Memória RAM, 4 Gb de espaço livre no armazenamento.
+- **Linguagem**: Python 3.11
+
+# Dependências
+
+As dependências Python para a execução do artefato de software estão contidas no arquivo `requirements.txt`:
+- `boto3>=1.28.0`
+- `pyyaml>=6.0`
+- `python-dateutil>=2.8.2`
+
+Além destas bibliotecas, para reproduzir os experimentos de forma fiel é necessário possuir uma conta na **AWS (Amazon Web Services)** e ativar explicitamente os Modelos Basais citados através do console do Amazon Bedrock.
+
+# Preocupações com segurança
+
+O sistema executa chamadas de API externas para o serviço na nuvem (AWS Bedrock). Então para não haver risco é recomendado não submeter chaves em repositórios abertos. Recomenda-se gerar credenciais da AWS restritas usando políticas estritas no AWS IAM com acesso apenas de Invocação de Modelos ao escopo de Bedrock, mitigando encargos financeiros. 
+
+# Instalação
+
+Abra o prompt de comando ou terminal do ambiente e acesse o diretório local do projeto extraído:
+
+```bash
+# Navegue até a pasta do projeto (caso não esteja lá ainda)
+cd orquestrador-iot-llm
+
+# Crie um ambiente virtual (recomendado para isolar as dependências)
+python -m venv venv
+
+# Ative o ambiente virtual
+source venv/bin/activate
+
+# Instale os requerimentos do pip
+pip install -r requirements.txt
+```
+
+# Teste mínimo
+
+Para garantir que a comunicação do Python está correta e a CLI carrega adequadamente sem iniciar todo o pipeline de experimento pesado:
+
+1. Execute a configuração no terminal do módulo principal:
+```bash
+python main.py config
+```
+O teste mínimo é útil para observar algumas funcionalidades do artefato e mostrar os arquivos de sistema em uso, além da renderização em tela dos modelos listados.
+Isso valida que não há erro de sintaxe nos scripts.
+
+2. Identificação de Problemas durante o Processo:
+```bash
+python test_models_connection.py
+```
+Isso validará as suas chaves da AWS informadas no próximo passo.
+
+# Experimentos
+
+A configuração base em `config.py` e `benchmark_runner.py` planeja a execução de 5 Formatos I/O, 5 System Messages, 10 Prompts e 5 Modelos de LLM (totalizando os 12.500 ensaios/experimentos originais). 
+
+Antes de prosseguir, certifique configurar suas credenciais. No Linux/Mac:
+```bash
+export AWS_ACCESS_KEY_ID="sua_chave_aws_aqui"
+export AWS_SECRET_ACCESS_KEY="sua_secret_aws_aqui"
+```
+No Windows:
+```cmd
+set AWS_ACCESS_KEY_ID="sua_chave_aws_aqui"
+set AWS_SECRET_ACCESS_KEY="sua_secret_aws_aqui"
+```
+
+## Reivindicações #1:
+- **Objetivo**: Rodar o fluxo principal validando a execução dos prompts num ciclo que transita entre estufas com e sem falhas induzidas.
+- **Comandos a serem executados**:
+  ```bash
+  python main.py run
+  ```
+- **Tempo esperado**: Estima-se 8 horas usando conexões residenciais.
+- **Resultado esperado**: Como saída no diretório respectivo prever a criação de um ficheiro JSON denso agrupando toda latência de inferência em `results/greenhouse_benchmark_results_[TIMESTAMP].json`.
+
+## Reivindicações #2:
+- **Objetivo**: Extrair a latência do endpoint, PEP (Pontuação de Eficiência de Parâmetros), PVO e formatá-los. Permitindo revisores confirmar os % e os resumos contidos no artigo publicado.
+- **Comandos a serem executados**:
+  ```bash
+  # Ver relatório diretamente no terminal
+  python main.py analyze results/greenhouse_benchmark_results_[TIMESTAMP].json
+
+  # Gerar formatações de tabela em relatório
+  python main.py analyze results/greenhouse_benchmark_results_[TIMESTAMP].json --report relatorio.txt
+
+  # Gerar tabelas LaTeX prontas pro artigo científico
+  python main.py analyze results/greenhouse_benchmark_results_[TIMESTAMP].json --latex tabelas.tex
+  ```
+- **Resultado esperado**: Impressão dos valores de benchmark extraídos detalhando Taxa de Erro de Sintaxe, Consumo de Tokens e Corretude, validando as asserções da pesquisa base.
+
+# LICENSE
+
+Este projeto está licenciado sob os termos da licença MIT. Consulte o arquivo LICENSE para mais detalhes.
+
